@@ -1,0 +1,243 @@
+// Quotefox data model.
+//
+// Provider is PostgreSQL (Neon) for the deployed environment. Enums are
+// modeled as validated strings (see src/lib/enums.ts) rather than native
+// Prisma enums, purely so this same file would also work unchanged against
+// SQLite for offline local development if ever needed again.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id            String   @id @default(cuid())
+  name          String
+  webhookUrl    String?
+  webhookSecret String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  users            User[]
+  funnels          Funnel[]
+  leads            Lead[]
+  subscription     Subscription?
+  analyticsEvents  AnalyticsEvent[]
+  webhookDeliveries WebhookDelivery[]
+}
+
+model WebhookDelivery {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  leadId         String
+  url            String
+  statusCode     Int?
+  success        Boolean
+  error          String?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  passwordHash   String
+  name           String
+  role           String   @default("owner") // "owner" | "member"
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+
+  sessions            Session[]
+  passwordResetTokens PasswordResetToken[]
+
+  @@index([organizationId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Funnel {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  slug           String   @unique
+  trade          String?
+  status         String   @default("draft") // "draft" | "published"
+  headline       String   @default("Get an instant estimate")
+  subheadline    String?
+  logoUrl        String?
+  primaryColor   String   @default("#ea580c")
+  basePrice      Float    @default(0)
+  currency       String   @default("usd")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  questions     Question[]
+  logicRules    LogicRule[]
+  pricingRules  PricingRule[]
+  leads         Lead[]
+  analyticsEvents AnalyticsEvent[]
+
+  @@index([organizationId])
+}
+
+model Question {
+  id        String   @id @default(cuid())
+  funnelId  String
+  funnel    Funnel   @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+  order     Int
+  type      String   // "single_choice" | "multiple_choice" | "text" | "number" | "date" | "location" | "email" | "phone" | "file"
+  label     String
+  helpText  String?
+  required  Boolean  @default(true)
+  options   Json?    // [{ id, label, value, priceModifier? }] for choice types
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  logicRulesAsTarget LogicRule[]   @relation("TargetQuestion")
+  pricingRules        PricingRule[]
+  leadAnswers          LeadAnswer[]
+
+  @@index([funnelId])
+}
+
+model LogicRule {
+  id              String   @id @default(cuid())
+  funnelId        String
+  funnel          Funnel   @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+  targetQuestionId String
+  targetQuestion  Question @relation("TargetQuestion", fields: [targetQuestionId], references: [id], onDelete: Cascade)
+  action          String   @default("show") // "show" | "hide"
+  logicType       String   @default("all")  // "all" (AND) | "any" (OR)
+  conditions      Json     // [{ questionId, operator, value }]
+  createdAt       DateTime @default(now())
+
+  @@index([funnelId])
+  @@index([targetQuestionId])
+}
+
+model PricingRule {
+  id            String   @id @default(cuid())
+  funnelId      String
+  funnel        Funnel   @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+  questionId    String?
+  question      Question? @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  optionValue   String?  // which option value on the question triggers this modifier
+  modifierType  String   // "flat" | "percent" | "per_unit"
+  modifierValue Float
+  description   String?
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  @@index([funnelId])
+  @@index([questionId])
+}
+
+model Lead {
+  id             String   @id @default(cuid())
+  funnelId       String
+  funnel         Funnel   @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String?
+  email          String?
+  phone          String?
+  estimateLow    Float
+  estimateHigh   Float
+  status         String   @default("new") // "new" | "contacted" | "qualified" | "won" | "lost"
+  source         String   @default("direct")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  answers LeadAnswer[]
+  files   UploadedFile[]
+
+  @@index([organizationId, status])
+  @@index([funnelId])
+}
+
+model LeadAnswer {
+  id         String   @id @default(cuid())
+  leadId     String
+  lead       Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  value      Json
+
+  @@index([leadId])
+}
+
+model UploadedFile {
+  id         String   @id @default(cuid())
+  leadId     String
+  lead       Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  filename   String
+  mimeType   String
+  sizeBytes  Int
+  storagePath String
+  createdAt  DateTime @default(now())
+
+  @@index([leadId])
+}
+
+model AnalyticsEvent {
+  id             String   @id @default(cuid())
+  funnelId       String
+  funnel         Funnel   @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  type           String   // "view" | "start" | "question_progress" | "completion" | "lead"
+  sessionId      String
+  metadata       Json?
+  createdAt      DateTime @default(now())
+
+  @@index([funnelId, type, createdAt])
+  @@index([organizationId])
+}
+
+model Subscription {
+  id                   String   @id @default(cuid())
+  organizationId       String   @unique
+  organization         Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  stripeCustomerId     String?  @unique
+  stripeSubscriptionId String?  @unique
+  plan                 String   @default("free") // "free" | "pro" | "business"
+  status               String   @default("active") // "active" | "trialing" | "past_due" | "canceled" | "unpaid" | "incomplete"
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model WebhookEvent {
+  id          String   @id // Stripe event id — primary key doubles as idempotency guard
+  type        String
+  processedAt DateTime @default(now())
+}
