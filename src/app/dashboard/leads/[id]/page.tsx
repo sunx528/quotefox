@@ -54,12 +54,14 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         <ArrowLeft className="h-4 w-4" /> Retour aux prospects
       </Link>
 
-      <div className="mt-3 flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">{lead.name || "Prospect sans nom"}</h1>
-          <p className="mt-1 text-sm text-muted">Depuis {lead.funnel.name} · {lead.createdAt.toLocaleString("fr-FR")}</p>
+      <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="truncate text-2xl font-semibold text-foreground">{lead.name || "Prospect sans nom"}</h1>
+          <p className="mt-1 truncate text-sm text-muted">Depuis {lead.funnel.name} · {lead.createdAt.toLocaleString("fr-FR")}</p>
         </div>
-        <LeadStatusSelect leadId={lead.id} status={lead.status} />
+        <div className="shrink-0">
+          <LeadStatusSelect leadId={lead.id} status={lead.status} />
+        </div>
       </div>
 
       <Card className="mt-6">

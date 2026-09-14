@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, Badge } from "@/components/ui/card";
 import { FunnelRowActions } from "@/components/dashboard/funnel-row-actions";
-import { Plus, ExternalLink } from "lucide-react";
+import { Plus, ExternalLink, FileQuestion, Users2 } from "lucide-react";
 import { FUNNEL_STATUS_LABELS, label } from "@/lib/labels";
 import type { Metadata } from "next";
 
@@ -22,9 +22,9 @@ export default async function FunnelsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Tunnels</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Tunnels</h1>
           <p className="mt-1 text-sm text-muted">Créez et publiez des tunnels de devis pour votre site.</p>
         </div>
         <Link href="/dashboard/funnels/new">
@@ -51,29 +51,37 @@ export default async function FunnelsPage() {
       ) : (
         <div className="mt-6 space-y-3">
           {funnels.map((f) => (
-            <Card key={f.id}>
-              <CardContent className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <Link href={`/dashboard/funnels/${f.id}`} className="truncate font-medium text-foreground hover:underline">
+            <Card key={f.id} className="transition-colors hover:border-brand/30">
+              <CardContent className="flex items-start justify-between gap-4 py-4">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link href={`/dashboard/funnels/${f.id}`} className="truncate text-base font-semibold text-foreground hover:underline">
                       {f.name}
                     </Link>
-                    <Badge tone={f.status === "published" ? "success" : "default"}>
+                    <Badge tone={f.status === "published" ? "success" : "default"} className="shrink-0">
                       {label(FUNNEL_STATUS_LABELS, f.status)}
                     </Badge>
                   </div>
-                  <p className="mt-1 text-xs text-muted">
-                    {f._count.questions} question{f._count.questions === 1 ? "" : "s"} · {f._count.leads} prospect
-                    {f._count.leads === 1 ? "" : "s"}
+                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
+                    <span className="inline-flex items-center gap-1">
+                      <FileQuestion className="h-3.5 w-3.5" />
+                      {f._count.questions} question{f._count.questions === 1 ? "" : "s"}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <Users2 className="h-3.5 w-3.5" />
+                      {f._count.leads} prospect{f._count.leads === 1 ? "" : "s"}
+                    </span>
                     {f.status === "published" && (
-                      <>
-                        {" · "}
-                        <Link href={`/q/${f.slug}`} target="_blank" className="inline-flex items-center gap-1 hover:text-foreground">
-                          voir la page publique <ExternalLink className="h-3 w-3" />
-                        </Link>
-                      </>
+                      <a
+                        href={`/q/${f.slug}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 hover:text-foreground hover:underline"
+                      >
+                        voir la page publique <ExternalLink className="h-3 w-3" />
+                      </a>
                     )}
-                  </p>
+                  </div>
                 </div>
                 <FunnelRowActions funnelId={f.id} status={f.status} />
               </CardContent>
