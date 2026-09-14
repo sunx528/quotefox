@@ -66,17 +66,17 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
 
       <Card className="mt-6">
         <CardContent className="grid gap-4 pt-5 sm:grid-cols-3">
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-medium uppercase text-muted">E-mail</p>
-            <p className="mt-1 text-sm text-foreground">{lead.email || "—"}</p>
+            <p className="mt-1 break-words text-sm text-foreground">{lead.email || "—"}</p>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-medium uppercase text-muted">Téléphone</p>
-            <p className="mt-1 text-sm text-foreground">{lead.phone || "—"}</p>
+            <p className="mt-1 break-words text-sm text-foreground">{lead.phone || "—"}</p>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-medium uppercase text-muted">Estimation</p>
-            <p className="mt-1 text-sm text-foreground">
+            <p className="mt-1 break-words text-sm text-foreground">
               {lead.estimateLow.toLocaleString()}–{lead.estimateHigh.toLocaleString()} $
             </p>
           </div>
