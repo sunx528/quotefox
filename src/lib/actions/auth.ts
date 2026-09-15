@@ -24,7 +24,7 @@ const signupSchema = z.object({
   businessName: z.string().trim().min(1, "Le nom de l'entreprise est requis").max(120),
 });
 
-export type FormState = { error?: string; fieldErrors?: Record<string, string> } | null;
+export type FormState = { error?: string; fieldErrors?: Record<string, string>; resetUrl?: string } | null;
 
 export async function signupAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const parsed = signupSchema.safeParse({
@@ -157,7 +157,7 @@ export async function forgotPasswordAction(_prev: FormState, formData: FormData)
     const token = await createPasswordResetToken(user.id);
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
     const resetUrl = `${appUrl}/reset-password?token=${token}`;
-    await sendEmail({
+    const result = await sendEmail({
       to: user.email,
       subject: "Réinitialisation de votre mot de passe Quotefox",
       html: `
@@ -166,6 +166,13 @@ export async function forgotPasswordAction(_prev: FormState, formData: FormData)
         <p>Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail en toute sécurité.</p>
       `,
     });
+
+    // Without a real email provider configured, silently doing nothing would
+    // leave the visitor with no way to actually reset their password — surface
+    // the link directly instead of pretending an email was sent.
+    if (!result.sent) {
+      return { resetUrl };
+    }
   }
 
   return {};

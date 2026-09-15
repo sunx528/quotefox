@@ -22,8 +22,18 @@ export default function ForgotPasswordPage() {
         <h1 className="mt-6 text-center text-2xl font-semibold text-foreground">Réinitialisez votre mot de passe</h1>
 
         {submitted ? (
-          <div className="mt-8 rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
-            Si un compte existe pour cette adresse e-mail, nous avons envoyé un lien de réinitialisation. Il expire dans 1 heure.
+          <div className="mt-8 space-y-3">
+            <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+              Si un compte existe pour cette adresse e-mail, nous avons envoyé un lien de réinitialisation. Il expire dans 1 heure.
+            </div>
+            {state?.resetUrl && (
+              <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+                <p>L&apos;envoi d&apos;e-mail n&apos;est pas configuré sur cet environnement — voici votre lien :</p>
+                <Link href={state.resetUrl} className="mt-1 block break-all font-medium underline">
+                  {state.resetUrl}
+                </Link>
+              </div>
+            )}
           </div>
         ) : (
           <form action={formAction} className="mt-8 space-y-4">
