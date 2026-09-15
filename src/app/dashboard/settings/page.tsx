@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, Badge } from "@/components/ui
 import { Button } from "@/components/ui/button";
 import { PLAN_LABELS, SUBSCRIPTION_STATUS_LABELS, label } from "@/lib/labels";
 import { PLAN_PRICES, type Plan } from "@/lib/enums";
-import { UpdateOrgNameForm, UpdateEmailForm, UpdatePasswordForm } from "@/components/dashboard/settings-forms";
+import { UpdateOrgNameForm, UpdateEmailForm, UpdatePasswordForm, TwoFactorSettings } from "@/components/dashboard/settings-forms";
 import { LogOut } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -16,9 +16,10 @@ export default async function SettingsPage() {
   const user = await getCurrentUser();
   if (!user) return null;
 
-  const [org, sub] = await Promise.all([
+  const [org, sub, fullUser] = await Promise.all([
     prisma.organization.findUnique({ where: { id: user.organizationId } }),
     prisma.subscription.findUnique({ where: { organizationId: user.organizationId } }),
+    prisma.user.findUnique({ where: { id: user.id }, select: { twoFactorEnabled: true } }),
   ]);
 
   const plan = (sub?.plan as Plan) ?? "free";
@@ -53,6 +54,15 @@ export default async function SettingsPage() {
         </CardHeader>
         <CardContent>
           <UpdatePasswordForm />
+        </CardContent>
+      </Card>
+
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Authentification à deux facteurs</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TwoFactorSettings initialEnabled={fullUser?.twoFactorEnabled ?? false} />
         </CardContent>
       </Card>
 

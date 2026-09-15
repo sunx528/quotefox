@@ -10,7 +10,11 @@ import {
   destroySession,
   createPasswordResetToken,
   consumePasswordResetToken,
+  createTwoFactorChallenge,
+  getTwoFactorChallengeUserId,
+  consumeTwoFactorChallenge,
 } from "@/lib/auth";
+import { verifyTwoFactorToken } from "@/lib/two-factor";
 import { sendEmail } from "@/lib/email";
 
 const signupSchema = z.object({
@@ -91,6 +95,41 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
     return { error: "E-mail ou mot de passe incorrect." };
   }
 
+  if (user.twoFactorEnabled) {
+    await createTwoFactorChallenge(user.id);
+    redirect("/login/verify");
+  }
+
+  await createSession(user.id);
+  redirect("/dashboard");
+}
+
+const verifyTwoFactorSchema = z.object({
+  code: z.string().trim().regex(/^\d{6}$/, "Saisissez le code à 6 chiffres de votre application d'authentification."),
+});
+
+export async function verifyTwoFactorLoginAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const parsed = verifyTwoFactorSchema.safeParse({ code: formData.get("code") });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Code invalide." };
+  }
+
+  const userId = await getTwoFactorChallengeUserId();
+  if (!userId) {
+    return { error: "Cette session de connexion a expiré. Reconnectez-vous." };
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user || !user.twoFactorEnabled || !user.twoFactorSecret) {
+    return { error: "Session invalide. Reconnectez-vous." };
+  }
+
+  const valid = await verifyTwoFactorToken(user.twoFactorSecret, user.email, parsed.data.code);
+  if (!valid) {
+    return { error: "Code incorrect." };
+  }
+
+  await consumeTwoFactorChallenge();
   await createSession(user.id);
   redirect("/dashboard");
 }
@@ -152,12 +191,20 @@ export async function resetPasswordAction(_prev: FormState, formData: FormData):
   }
 
   const passwordHash = await hashPassword(parsed.data.password);
-  await prisma.$transaction([
-    prisma.user.update({ where: { id: userId }, data: { passwordHash } }),
-    // Invalidate every existing session — a password reset should log out any
-    // other device/session that might have been compromised.
-    prisma.session.deleteMany({ where: { userId } }),
-  ]);
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash },
+  });
+  // Invalidate every existing session — a password reset should log out any
+  // other device/session that might have been compromised.
+  await prisma.session.deleteMany({ where: { userId } });
+
+  // A password reset must not let anyone skip 2FA — resetting the password
+  // only proves control of the inbox, not possession of the authenticator.
+  if (user.twoFactorEnabled) {
+    await createTwoFactorChallenge(user.id);
+    redirect("/login/verify");
+  }
 
   await createSession(userId);
   redirect("/dashboard");

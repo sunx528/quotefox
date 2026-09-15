@@ -7,6 +7,9 @@ import { prisma } from "./prisma";
 const SESSION_COOKIE_NAME = "qf_session";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
+const TWO_FACTOR_COOKIE_NAME = "qf_2fa_challenge";
+const TWO_FACTOR_CHALLENGE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
 }
@@ -68,6 +71,53 @@ export async function destroySession(): Promise<void> {
     await prisma.session.deleteMany({ where: { tokenHash } }).catch(() => {});
   }
   cookieStore.delete(SESSION_COOKIE_NAME);
+}
+
+/**
+ * Issues a short-lived, single-use challenge for an account with 2FA enabled.
+ * No session cookie is set here — the visitor must also present a valid TOTP
+ * code (see consumeTwoFactorChallenge) before createSession() ever runs.
+ */
+export async function createTwoFactorChallenge(userId: string): Promise<void> {
+  const token = randomBytes(32).toString("hex");
+  await prisma.twoFactorChallenge.create({
+    data: {
+      userId,
+      tokenHash: hashToken(token),
+      expiresAt: new Date(Date.now() + TWO_FACTOR_CHALLENGE_TTL_MS),
+    },
+  });
+
+  const cookieStore = await cookies();
+  cookieStore.set(TWO_FACTOR_COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: TWO_FACTOR_CHALLENGE_TTL_MS / 1000,
+  });
+}
+
+/** Resolves the pending 2FA challenge cookie to a user id, or null if missing/expired. */
+export async function getTwoFactorChallengeUserId(): Promise<string | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(TWO_FACTOR_COOKIE_NAME)?.value;
+  if (!token) return null;
+
+  const record = await prisma.twoFactorChallenge.findUnique({ where: { tokenHash: hashToken(token) } });
+  if (!record || record.expiresAt < new Date()) return null;
+
+  return record.userId;
+}
+
+/** Deletes the pending challenge (server-side and cookie) after a successful or abandoned 2FA step. */
+export async function consumeTwoFactorChallenge(): Promise<void> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(TWO_FACTOR_COOKIE_NAME)?.value;
+  if (token) {
+    await prisma.twoFactorChallenge.deleteMany({ where: { tokenHash: hashToken(token) } }).catch(() => {});
+  }
+  cookieStore.delete(TWO_FACTOR_COOKIE_NAME);
 }
 
 export type AuthedUser = {

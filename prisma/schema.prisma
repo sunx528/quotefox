@@ -45,22 +45,39 @@ model WebhookDelivery {
 }
 
 model User {
-  id             String   @id @default(cuid())
-  email          String   @unique
-  passwordHash   String
-  name           String
-  role           String   @default("owner") // "owner" | "member"
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdAt      DateTime @default(now())
+  id                String   @id @default(cuid())
+  email             String   @unique
+  passwordHash      String
+  name              String
+  role              String   @default("owner") // "owner" | "member"
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  twoFactorSecret   String?  // base32 TOTP secret, set once 2FA setup begins
+  twoFactorEnabled  Boolean  @default(false)
 
   sessions            Session[]
   passwordResetTokens PasswordResetToken[]
+  twoFactorChallenges TwoFactorChallenge[]
 
   @@index([organizationId])
 }
 
 model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Short-lived challenge between "password verified" and "session created" for
+// accounts with 2FA enabled — a real session is never issued until the TOTP
+// code is also verified.
+model TwoFactorChallenge {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
