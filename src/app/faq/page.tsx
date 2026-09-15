@@ -29,6 +29,14 @@ const FAQS = [
     q: "Mes données sont-elles exportables ?",
     a: "Oui. Vous pouvez exporter tous vos leads en CSV à tout moment depuis votre tableau de bord.",
   },
+  {
+    q: "Dois-je entrer ma carte bancaire pour l'essai gratuit ?",
+    a: "Non. Le forfait Gratuit ne demande aucune carte bancaire et n'expire pas — vous passez à un forfait payant uniquement quand vous êtes prêt.",
+  },
+  {
+    q: "Puis-je annuler à tout moment ?",
+    a: "Oui, en un clic depuis Paramètres → Facturation → Gérer la facturation. Aucun engagement, aucun frais de résiliation.",
+  },
 ];
 
 export default function FaqPage() {

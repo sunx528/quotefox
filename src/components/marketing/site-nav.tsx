@@ -13,8 +13,8 @@ export function SiteNav() {
           <Link href="/pricing" className="hover:text-foreground">Tarifs</Link>
           <Link href="/faq" className="hover:text-foreground">FAQ</Link>
         </nav>
-        <div className="flex items-center gap-3">
-          <Link href="/login" className="text-sm font-medium text-muted hover:text-foreground">
+        <div className="flex shrink-0 items-center gap-3">
+          <Link href="/login" className="hidden text-sm font-medium text-muted hover:text-foreground sm:inline">
             Se connecter
           </Link>
           <Link href="/signup">

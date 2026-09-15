@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/marketing/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check } from "lucide-react";
+import { PLAN_PRICES } from "@/lib/enums";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Tarifs" };
@@ -11,7 +12,7 @@ export const metadata: Metadata = { title: "Tarifs" };
 const PLANS = [
   {
     name: "Gratuit",
-    price: "0 $",
+    price: `${PLAN_PRICES.free} $`,
     period: "à vie",
     description: "Essayez-le sur votre site sans aucun risque.",
     features: ["1 tunnel", "25 leads/mois", "Marque Quotefox sur le widget", "Notifications de leads par e-mail"],
@@ -20,7 +21,7 @@ const PLANS = [
   },
   {
     name: "Pro",
-    price: "79 $",
+    price: `${PLAN_PRICES.pro} $`,
     period: "/mois",
     description: "Pour une entreprise qui exploite sérieusement un tunnel de devis actif.",
     features: ["5 tunnels", "500 leads/mois", "Retirer la marque Quotefox", "Export CSV", "Notifications par e-mail"],
@@ -30,7 +31,7 @@ const PLANS = [
   },
   {
     name: "Business",
-    price: "199 $",
+    price: `${PLAN_PRICES.business} $`,
     period: "/mois",
     description: "Pour les entreprises multi-services et agences qui gèrent plusieurs tunnels.",
     features: ["Tunnels illimités", "3 000 leads/mois", "Webhooks", "Support prioritaire", "Tout ce qui est inclus dans Pro"],
@@ -50,6 +51,14 @@ export default function PricingPage() {
             Un seul lead Angi ou Thumbtack peut coûter 50 à 120 $, sans garantie qu&apos;il soit exclusif ou
             qu&apos;il réponde au téléphone. Quotefox, c&apos;est un prix mensuel fixe pour un tunnel qui vous appartient.
           </p>
+          <a
+            href="/q/devis-remplacement-de-toiture-demo-y3ap3d"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-4 inline-block text-sm font-medium text-brand hover:underline"
+          >
+            Voir un tunnel en démo avant de choisir →
+          </a>
         </section>
         <section className="mx-auto max-w-5xl px-4 pb-20 sm:px-6">
           <div className="grid gap-6 sm:grid-cols-3">
@@ -80,7 +89,8 @@ export default function PricingPage() {
             ))}
           </div>
           <p className="mt-8 text-center text-sm text-muted">
-            Facturation mensuelle. Annulez à tout moment depuis vos paramètres de facturation. Prix en dollars américains (USD).
+            Sans carte bancaire pour l&apos;essai · Facturation mensuelle · Annulez à tout moment, sans engagement.
+            Prix en dollars américains (USD).
           </p>
         </section>
       </main>

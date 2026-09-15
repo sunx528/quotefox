@@ -3,7 +3,17 @@ import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, Zap, ShieldCheck, LineChart } from "lucide-react";
+import { CheckCircle2, Zap, ShieldCheck, LineChart, ArrowRight, Check, X } from "lucide-react";
+
+const DEMO_FUNNEL_URL = "/q/devis-remplacement-de-toiture-demo-y3ap3d";
+
+const COMPARISON_ROWS: { label: string; quotefox: string; marketplace: string }[] = [
+  { label: "Prix", quotefox: "Forfait mensuel fixe (0–199 $)", marketplace: "50–120 $+ par lead partagé" },
+  { label: "Exclusivité du lead", quotefox: "100 % à vous, jamais revendu", marketplace: "Revendu à plusieurs artisans à la fois" },
+  { label: "Où vit le tunnel", quotefox: "Sur votre propre site, à votre image", marketplace: "Sur leur marketplace, entourés de vos concurrents" },
+  { label: "Estimation avant contact", quotefox: "Le visiteur voit une fourchette avant de soumettre", marketplace: "Formulaire de contact générique, sans prix" },
+  { label: "Propriété des données", quotefox: "Vous appartiennent, exportables en CSV", marketplace: "Appartiennent à la marketplace" },
+];
 
 const TRADES = [
   "Toiture", "Plomberie", "Électricité", "Chauffage/Climatisation", "Peinture", "Aménagement paysager",
@@ -33,6 +43,17 @@ export default function HomePage() {
                 <Button size="lg" variant="secondary">Voir les tarifs</Button>
               </Link>
             </div>
+            <a
+              href={DEMO_FUNNEL_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand hover:underline"
+            >
+              Essayer un tunnel en direct, sans compte <ArrowRight className="h-3.5 w-3.5" />
+            </a>
+            <p className="mt-6 text-xs text-muted">
+              Sans carte bancaire · Annulez à tout moment · Configuration en 5 minutes
+            </p>
           </div>
         </section>
 
@@ -58,6 +79,44 @@ export default function HomePage() {
                 </p>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Comparison vs lead marketplaces */}
+        <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
+          <h2 className="text-center text-2xl font-semibold text-foreground sm:text-3xl">
+            Quotefox face aux marketplaces de leads
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-center text-muted">
+            Angi, Thumbtack et HomeAdvisor vous mettent en concurrence pour le même lead. Quotefox vous appartient.
+          </p>
+          <div className="mt-10 overflow-hidden rounded-xl border border-border">
+            <div className="grid grid-cols-[1.1fr_0.7fr_1.2fr] gap-2 bg-black/[0.02] text-xs font-medium text-foreground dark:bg-white/[0.03] sm:gap-0 sm:text-sm">
+              <div className="px-3 py-3 sm:px-4">&nbsp;</div>
+              <div className="flex items-center gap-1.5 px-3 py-3 text-brand-dark sm:px-4">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-brand text-[11px] text-brand-foreground">Q</span>
+                <span className="hidden sm:inline">Quotefox</span>
+              </div>
+              <div className="px-3 py-3 sm:px-4">Marketplaces</div>
+            </div>
+            {COMPARISON_ROWS.map((row, i) => (
+              <div
+                key={row.label}
+                className={`grid grid-cols-[1.1fr_0.7fr_1.2fr] items-start gap-2 border-t border-border text-xs sm:gap-0 sm:text-sm ${
+                  i % 2 === 1 ? "bg-black/[0.01] dark:bg-white/[0.015]" : ""
+                }`}
+              >
+                <div className="px-3 py-3 text-foreground sm:px-4">{row.label}</div>
+                <div className="flex items-start gap-1 px-3 py-3 text-foreground sm:px-4">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                  <span>{row.quotefox}</span>
+                </div>
+                <div className="flex items-start gap-1 px-3 py-3 text-muted sm:px-4">
+                  <X className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                  <span>{row.marketplace}</span>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
