@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isStripeConfigured } from "@/lib/stripe";
-import { PLAN_LIMITS, type Plan } from "@/lib/enums";
+import { PLAN_LIMITS, PLAN_PRICES, type Plan } from "@/lib/enums";
 import { PLAN_LABELS, SUBSCRIPTION_STATUS_LABELS, label } from "@/lib/labels";
 import { Card, CardContent, Badge } from "@/components/ui/card";
 import { CheckoutButton } from "@/components/dashboard/checkout-button";
@@ -122,7 +122,7 @@ export default async function BillingPage() {
           {plan === "free" && (
             <Card>
               <CardContent className="pt-5">
-                <p className="font-medium text-foreground">Pro — 79 $/mois</p>
+                <p className="font-medium text-foreground">Pro — {PLAN_PRICES.pro} $/mois</p>
                 <p className="mt-1 text-sm text-muted">5 tunnels, 500 leads/mois, retrait de la marque, export CSV.</p>
                 <div className="mt-4">
                   <CheckoutButton plan="pro" disabled={!configured} />
@@ -132,7 +132,7 @@ export default async function BillingPage() {
           )}
           <Card>
             <CardContent className="pt-5">
-              <p className="font-medium text-foreground">Business — 199 $/mois</p>
+              <p className="font-medium text-foreground">Business — {PLAN_PRICES.business} $/mois</p>
               <p className="mt-1 text-sm text-muted">Tunnels illimités, 3 000 leads/mois, webhooks, support prioritaire.</p>
               <div className="mt-4">
                 <CheckoutButton plan="business" disabled={!configured} />

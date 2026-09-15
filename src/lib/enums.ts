@@ -60,3 +60,10 @@ export const PLAN_LIMITS: Record<Plan, { funnels: number; leadsPerMonth: number;
   pro: { funnels: 5, leadsPerMonth: 500, branding: false, webhooks: false },
   business: { funnels: Infinity, leadsPerMonth: 3000, branding: false, webhooks: true },
 };
+
+/** Monthly price in USD, shown next to the plan name in Billing and Settings. */
+export const PLAN_PRICES: Record<Plan, number> = {
+  free: 0,
+  pro: 79,
+  business: 199,
+};
