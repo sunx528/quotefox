@@ -29,7 +29,7 @@ export function LeadStatusSelect({ leadId, status }: { leadId: string; status: s
           router.refresh();
         });
       }}
-      className={`rounded-lg border border-border bg-surface px-2 py-1 text-xs font-medium ${STATUS_COLORS[status] ?? ""}`}
+      className={`cursor-pointer rounded-lg border border-border bg-surface px-2 py-1 text-xs font-medium transition-colors hover:bg-black/[0.03] disabled:cursor-wait disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand dark:hover:bg-white/[0.04] ${STATUS_COLORS[status] ?? ""}`}
     >
       {STATUSES.map((s) => (
         <option key={s} value={s}>

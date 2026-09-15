@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent } from "@/components/ui/card";
 import { AnalyticsChart } from "@/components/dashboard/analytics-chart";
+import { Eye, MousePointerClick, CheckCircle2, Users2, type LucideIcon } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Statistiques" };
@@ -52,16 +53,23 @@ export default async function AnalyticsPage() {
       <p className="mt-1 text-sm text-muted">Comment vos tunnels publiés convertissent.</p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-4">
-        {[
-          ["Vues", totals.views],
-          ["Démarrages", totals.starts],
-          ["Terminés", totals.completions],
-          ["Prospects", totals.leads],
-        ].map(([label, value]) => (
-          <Card key={label as string}>
-            <CardContent className="pt-5">
-              <p className="text-xs font-medium uppercase text-muted">{label}</p>
-              <p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
+        {(
+          [
+            ["Vues", totals.views, Eye],
+            ["Démarrages", totals.starts, MousePointerClick],
+            ["Terminés", totals.completions, CheckCircle2],
+            ["Prospects", totals.leads, Users2],
+          ] as [string, number, LucideIcon][]
+        ).map(([label, value, Icon]) => (
+          <Card key={label} className="transition-colors hover:border-brand/30">
+            <CardContent className="flex items-start justify-between pt-5">
+              <div>
+                <p className="text-xs font-medium uppercase text-muted">{label}</p>
+                <p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
+              </div>
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand-dark dark:text-orange-300">
+                <Icon className="h-4 w-4" />
+              </span>
             </CardContent>
           </Card>
         ))}

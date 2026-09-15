@@ -3,19 +3,20 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
-type Size = "sm" | "md" | "lg";
+type Size = "sm" | "md" | "lg" | "icon";
 
 const variantClasses: Record<Variant, string> = {
-  primary: "bg-brand text-brand-foreground hover:bg-brand-dark shadow-sm",
+  primary: "bg-brand text-brand-foreground shadow-sm hover:bg-brand-dark hover:shadow-md",
   secondary: "bg-surface text-foreground border border-border hover:bg-black/[0.03] dark:hover:bg-white/[0.04]",
   ghost: "text-foreground hover:bg-black/[0.04] dark:hover:bg-white/[0.06]",
-  danger: "bg-red-600 text-white hover:bg-red-700",
+  danger: "bg-red-600 text-white shadow-sm hover:bg-red-700 hover:shadow-md",
 };
 
 const sizeClasses: Record<Size, string> = {
   sm: "h-8 px-3 text-sm gap-1.5",
   md: "h-10 px-4 text-sm gap-2",
   lg: "h-12 px-6 text-base gap-2",
+  icon: "h-9 w-9",
 };
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -29,7 +30,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center rounded-lg font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-150 active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           variantClasses[variant],
           sizeClasses[size],
           className

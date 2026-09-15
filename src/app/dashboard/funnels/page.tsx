@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, Badge } from "@/components/ui/card";
 import { FunnelRowActions } from "@/components/dashboard/funnel-row-actions";
-import { Plus, ExternalLink, FileQuestion, Users2 } from "lucide-react";
+import { Plus, ExternalLink, FileQuestion, Users2, LayoutGrid } from "lucide-react";
 import { FUNNEL_STATUS_LABELS, label } from "@/lib/labels";
 import type { Metadata } from "next";
 
@@ -37,6 +37,9 @@ export default async function FunnelsPage() {
       {funnels.length === 0 ? (
         <Card className="mt-8">
           <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand/10 text-brand-dark dark:text-orange-300">
+              <LayoutGrid className="h-6 w-6" />
+            </span>
             <p className="font-medium text-foreground">Aucun tunnel pour l&apos;instant</p>
             <p className="max-w-sm text-sm text-muted">
               Créez votre premier tunnel de devis à partir d&apos;un modèle métier — vous pouvez le publier en moins de 5 minutes.

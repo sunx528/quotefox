@@ -51,7 +51,7 @@ export default async function BillingPage() {
       )}
 
       <Card className="mt-6">
-        <CardContent className="flex items-center justify-between pt-5">
+        <CardContent className="flex flex-wrap items-center justify-between gap-3 pt-5">
           <div>
             <p className="text-sm text-muted">Forfait actuel</p>
             <p className="mt-1 text-xl font-semibold text-foreground">{label(PLAN_LABELS, plan)}</p>

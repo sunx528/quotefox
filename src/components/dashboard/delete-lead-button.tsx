@@ -22,7 +22,7 @@ export function DeleteLeadButton({ leadId }: { leadId: string }) {
         });
       }}
     >
-      <Trash2 className="h-4 w-4" /> Supprimer le prospect
+      <Trash2 className="h-4 w-4" /> {isPending ? "Suppression…" : "Supprimer le prospect"}
     </Button>
   );
 }

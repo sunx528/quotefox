@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LeadStatusSelect } from "@/components/dashboard/lead-status-select";
-import { Download } from "lucide-react";
+import { Download, Users2 } from "lucide-react";
 import { LEAD_STATUS_LABELS } from "@/lib/labels";
 import type { Metadata } from "next";
 
@@ -45,7 +45,7 @@ export default async function LeadsPage({
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">Prospects</h1>
           <p className="mt-1 text-sm text-muted">{leads.length} prospect{leads.length === 1 ? "" : "s"}</p>
@@ -82,8 +82,13 @@ export default async function LeadsPage({
 
       {leads.length === 0 ? (
         <Card className="mt-6">
-          <CardContent className="py-16 text-center text-sm text-muted">
-            Aucun prospect pour l&apos;instant. Publiez un tunnel et partagez son lien pour commencer à en recevoir.
+          <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand/10 text-brand-dark dark:text-orange-300">
+              <Users2 className="h-6 w-6" />
+            </span>
+            <p className="max-w-sm text-sm text-muted">
+              Aucun prospect pour l&apos;instant. Publiez un tunnel et partagez son lien pour commencer à en recevoir.
+            </p>
           </CardContent>
         </Card>
       ) : (

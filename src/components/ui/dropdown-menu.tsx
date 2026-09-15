@@ -43,7 +43,10 @@ export function DropdownMenu({
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-black/[0.05] hover:text-foreground dark:hover:bg-white/[0.08]"
+        className={cn(
+          "flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-black/[0.05] hover:text-foreground active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:hover:bg-white/[0.08]",
+          open && "bg-black/[0.05] text-foreground dark:bg-white/[0.08]"
+        )}
       >
         {trigger}
       </button>
